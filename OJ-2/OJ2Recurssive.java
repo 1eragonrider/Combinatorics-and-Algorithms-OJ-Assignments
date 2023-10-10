@@ -2,7 +2,7 @@ import java.io.BufferedInputStream;
 import java.util.*;
 
 class SJTArray {
-  private List<Integer> arrayToPermutate = new ArrayList<>(20);
+  private List<Integer> arrayToReturn = new ArrayList<>(20);
   private long k;
   private int n;
 
@@ -16,9 +16,6 @@ class SJTArray {
   public SJTArray(int nPar, long kPar) {
     n = nPar;
     k = kPar - 1;
-    for (int i = 1; i <= nPar; i++) {
-      arrayToPermutate.add(i);
-    }
   }
 
   // private methods
@@ -26,30 +23,35 @@ class SJTArray {
 
   // public methods
   public void printArray() {
-    for (int i = 0; i<arrayToPermutate.size(); i++) {
-      if (i == (arrayToPermutate.size() - 1)) {
-        System.out.print(arrayToPermutate.get(i));
+    for (int i = 0; i<arrayToReturn.size(); i++) {
+      if (i == (arrayToReturn.size() - 1)) {
+        System.out.print(arrayToReturn.get(i));
         continue;
       }
-      System.out.print(arrayToPermutate.get(i) + " ");
+      System.out.print(arrayToReturn.get(i) + " ");
     }
   }
 
-  public int[] calculateSJTArray(int nPar, long kPar) {
+  public List<Integer> calculateSJTArray(int nPar, long kPar) {
     if (nPar == 1) {
-      return 1;
+      arrayToReturn.add(0, 1);
+      return arrayToReturn;
     }
     long quotient = kPar / nPar;
-    int remainder = kPar % nPar;
+    int remainder = (int) (kPar % nPar);
 
     return calculateSJTArray(nPar - 1, quotient);
 
     if (quotient%2 != 0 ) {
       // This case is when the quotient is odd
       // place the nPar value in index = remainder and shift all the values to its right to the right 1
+      arrayToReturn.add(remainder, nPar);
+      return arrayToReturn;
     } else {
       // This case is when the quotient is even
       // place the nPar value in index = nPar - remainder and shift all the values to its right to the right 1;
+      arrayToReturn.add(nPar - remainder, nPar);
+      return arrayToReturn;
     }
   }
 }
