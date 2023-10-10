@@ -1,0 +1,231 @@
+package OJ_assignment_2;
+
+import java.io.BufferedInputStream;
+import java.util.*;
+
+class nSequenceOfNumbers {
+    // properties
+    private List<Integer> value = new ArrayList<>(20);
+    private List<Integer> targetArray = new ArrayList<>(20);
+    private List<Boolean> direction = new ArrayList<>(20); // right-to-left is 1
+    private List<Boolean> isMobile = new ArrayList<>(20); // mobile is 1
+    private int length = 0;
+
+
+    // setters and getters (indexPar starts from 1 NOT 0)
+    private int getValue(int indexPar) { return value.get(indexPar - 1);}
+    //private void setValue(int valuePar, int indexPar) { value.set(indexPar - 1, valuePar); }
+    private int getTargetArray(int indexPar) { return targetArray.get(indexPar - 1);}
+    private void setTargetArray(int valuePar, int indexPar) { targetArray.set(indexPar - 1, valuePar); }
+    private boolean getDirection(int indexPar) { return direction.get(indexPar - 1);}
+    private void setDirection(boolean directionPar, int indexPar) { direction.set(indexPar - 1, directionPar);}
+    private boolean getMobile(int indexPar) {return isMobile.get(indexPar - 1);}
+    private void setMobile(boolean mobilePar, int indexPar) { isMobile.set(indexPar - 1, mobilePar);}
+
+    // Constructors
+    public nSequenceOfNumbers(int nPar) {
+        for(int i = 1; i<=nPar; i++) {
+            value.add(i);
+            targetArray.add(i);
+            direction.add(true);
+            
+            if (i == 1) {
+                isMobile.add(false);
+            } else {
+                isMobile.add(true);   
+            }
+        }
+        length = nPar;
+    }
+
+    // public methods
+    public void printSequence(String stringPar) {
+        if (stringPar == "value") {
+            for (int i = 1; i <= length; i++) {
+                if (i == length) {
+                    System.out.print(getValue(i));
+                    continue;
+                }
+                System.out.print(getValue(i) + " ");
+            }
+        }
+        if (stringPar == "target") {
+            for (int i = 1; i <= length; i++) {
+                if(i == length) {
+                    System.out.print(getTargetArray(i));
+                    continue;
+                }
+                System.out.print(getTargetArray(i) + " ");
+            }
+        }
+        if (stringPar == "direction") {
+            for (int i = 1; i <= length; i++) {
+                System.out.print(getDirection(i) + " ");
+            }
+        }
+        if (stringPar == "mobile") {
+            for (int i = 1; i <= length; i++) {
+                System.out.print(getMobile(i) + " ");
+            }
+        }
+    }
+
+    public void FindKthSequence(int kPar) {
+        //get the largest mobile number of the sequence
+        int indexOfLargestMobileNumber = indexOfLargestMobileNumber();
+        int indexOfSecondLargestMobileNumber = 0;
+        int valueOfSeconfLargestMobileNumber = 0;
+
+        for (int k = 1; k < kPar; k++) {
+
+            // Check to see if we reached the end with the largest number and change the 
+            // mobility and direction. Then find the second largest mobile number and move
+            // it unless it has reached the first position and change the mobility to false.
+            if (!getMobile(indexOfLargestMobileNumber)) {
+                indexOfSecondLargestMobileNumber = indexOfLargestMobileNumber();
+                valueOfSeconfLargestMobileNumber = getTargetArray(indexOfSecondLargestMobileNumber);
+
+                if ((getDirection(indexOfSecondLargestMobileNumber) == true)) {
+                    shiftTargetArrayValue(indexOfSecondLargestMobileNumber, "left");
+                    indexOfSecondLargestMobileNumber -= 1;
+                } else if (getDirection(indexOfSecondLargestMobileNumber) == false) {
+                    shiftTargetArrayValue(indexOfSecondLargestMobileNumber, "right");            
+                    indexOfSecondLargestMobileNumber +=1;
+                }
+            }
+
+            // shift that number to get the next sequence
+            if ((getDirection(indexOfLargestMobileNumber)) && (getMobile(indexOfLargestMobileNumber))) {
+                shiftTargetArrayValue(indexOfLargestMobileNumber, "left");
+                indexOfLargestMobileNumber -= 1;
+            } else if ((!getDirection(indexOfLargestMobileNumber)) && (getMobile(indexOfLargestMobileNumber))) {
+                shiftTargetArrayValue(indexOfLargestMobileNumber, "right");
+                indexOfLargestMobileNumber +=1;
+            }
+
+            // check if the second largest value was shifted by the movement of the largest value
+            // and if it was shifted into the first position flip the mobile.
+            if (findTargetArrayValueIndex(valueOfSeconfLargestMobileNumber) == 1) {
+                    setMobile(false, findTargetArrayValueIndex(valueOfSeconfLargestMobileNumber));
+            }
+
+            checkMobileAndDirectionChanged(indexOfLargestMobileNumber);
+        }
+    }
+
+    // private methods
+    private int indexOfLargestMobileNumber() {
+        int indexToReturn = 1;
+        while(!getMobile(indexToReturn)){
+            indexToReturn += 1;
+        }
+        if (length == 1) {
+            return 1;
+        }
+        for (int i = 1; i < length; i++) {
+            for (int j = i + 1; j < length; j++) {
+                if (getMobile(i) && getMobile(j) && (getTargetArray(i) > getTargetArray(j)) && (getTargetArray(i) > getTargetArray(indexToReturn))){
+                    indexToReturn = i;
+                } else if (getMobile(i) && getMobile(j) && (getTargetArray(j) > getTargetArray(i)) && (getTargetArray(j) > getTargetArray(indexToReturn))) {
+                    indexToReturn = j;
+                }
+            }
+        }
+        return indexToReturn;
+    }
+
+    private void shiftTargetArrayValue(int indexToShiftPar, String directionPar){
+
+        int valueOfIndexToShift, valueOfIndexDisplaced, indexOfDisplaced;
+        boolean directionOfIndexToShift, directionOfIndexDisplaced, mobileOfIndexToShift, mobileOfIndexDisplaced;
+
+        valueOfIndexToShift = getTargetArray(indexToShiftPar);
+        directionOfIndexToShift = getDirection(indexToShiftPar);
+        mobileOfIndexToShift = getMobile(indexToShiftPar);
+
+        indexOfDisplaced = 0;
+        valueOfIndexDisplaced = 0;
+        directionOfIndexDisplaced = true;
+        mobileOfIndexDisplaced = true;
+
+        if (directionPar == "left") {
+            indexOfDisplaced = indexToShiftPar - 1;
+            valueOfIndexDisplaced = getTargetArray(indexToShiftPar - 1);
+            directionOfIndexDisplaced = getDirection(indexToShiftPar - 1);
+            mobileOfIndexDisplaced = getMobile(indexToShiftPar - 1);
+        }else if (directionPar == "right") {
+            indexOfDisplaced = indexToShiftPar + 1;
+            valueOfIndexDisplaced = getTargetArray(indexToShiftPar + 1);
+            directionOfIndexDisplaced = getDirection(indexToShiftPar + 1);
+            mobileOfIndexDisplaced = getMobile(indexToShiftPar + 1);
+        }
+
+        setTargetArray(valueOfIndexToShift, indexOfDisplaced);
+        setDirection(directionOfIndexToShift, indexOfDisplaced);
+        setMobile(mobileOfIndexToShift, indexOfDisplaced);
+
+        setTargetArray(valueOfIndexDisplaced, indexToShiftPar);
+        setDirection(directionOfIndexDisplaced, indexToShiftPar);
+        setMobile(mobileOfIndexDisplaced, indexToShiftPar);
+    }
+
+    private boolean checkMobileAndDirectionChanged(int indexPar) {
+        
+        // if we just reached either end of the target array then the mobility will still be true
+        // Therefore we need to switch the mobility to false for the next iteration and set the
+        // direction to the reverse: left-to-right (false), right-to-left (true).
+        if ((getMobile(indexPar) == true) && (indexPar == 1)) {
+            setMobile(false, indexPar);
+            setDirection(false, indexPar);
+            return true;
+        }
+        if ((getMobile(indexPar) == true) && (indexPar == length)) {
+            setMobile(false, indexPar);
+            setDirection(true, indexPar);
+            return true;
+        }
+
+        // If we have already reached either end and done the previous steps, then the largest mobile
+        // number will always be set to false. Therefore on the next iteration we need to set the 
+        // mobility to true.
+        if ((getMobile(indexPar) == false) && (indexPar == 1)) {
+            setMobile(true, indexPar);
+            return true;
+        }
+        if ((getMobile(indexPar) == false) && (indexPar == length)) {
+            setMobile(true, indexPar);
+            return true;
+        }
+        return false;
+    }
+
+    private int findTargetArrayValueIndex(int valuePar) {
+        for (int i = 1; i <= length; i++) {
+            if (getTargetArray(i) == valuePar)
+                return i;
+        }
+        return 0;
+    }    
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        // Declarations
+        int n;
+        Bigint k;
+        
+        // Input
+        Scanner in = new Scanner(new BufferedInputStream(System.in));
+        n = in.nextInt();
+        k = in.nextInt();
+
+        // Calculations
+        nSequenceOfNumbers sjtSequence = new nSequenceOfNumbers(n);
+        sjtSequence.FindKthSequence(k);
+
+        // Output
+        sjtSequence.printSequence("target");     
+    }
+}
