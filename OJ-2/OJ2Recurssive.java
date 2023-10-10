@@ -1,26 +1,16 @@
 import java.io.BufferedInputStream;
 import java.util.*;
 
+
 class SJTArray {
+
+  // Attributes
   private List<Integer> arrayToReturn = new ArrayList<>(20);
-  private long k;
-  private int n;
 
-  // setters and getters
-  public int getK() { return k;}
-  public void setK(long kPar){k = kPar;}
-  public int getN() { return n;}
-  public void setN(int nPar){n = nPar;}
-
-  // constructors
-  public SJTArray(int nPar, long kPar) {
-    n = nPar;
-    k = kPar - 1;
+  // constructor
+  public SJTArray() {
   }
-
-  // private methods
   
-
   // public methods
   public void printArray() {
     for (int i = 0; i<arrayToReturn.size(); i++) {
@@ -40,7 +30,7 @@ class SJTArray {
     long quotient = kPar / nPar;
     int remainder = (int) (kPar % nPar);
 
-    return calculateSJTArray(nPar - 1, quotient);
+    calculateSJTArray(nPar - 1, quotient);
 
     if (quotient%2 != 0 ) {
       // This case is when the quotient is odd
@@ -49,11 +39,38 @@ class SJTArray {
       return arrayToReturn;
     } else {
       // This case is when the quotient is even
-      // place the nPar value in index = nPar - remainder and shift all the values to its right to the right 1;
-      arrayToReturn.add(nPar - remainder, nPar);
+      // place the nPar value in index = (nPar - 1) - remainder and shift all the values to its right to the right 1;
+      arrayToReturn.add((nPar - 1) - remainder, nPar);
       return arrayToReturn;
     }
   }
+
+  public boolean clearSJTArray() {
+    arrayToReturn.clear();
+    return true;
+  }
 }
 
+class Main {
 
+    public static void main(String[] args) {
+
+        // Declarations
+        int n;
+        long k;
+        
+        // Input
+        Scanner in = new Scanner(new BufferedInputStream(System.in));
+        n = in.nextInt();
+        k = in.nextLong();
+
+        // Calculations
+        SJTArray sjtArray = new SJTArray();
+        k = k - 1;
+        sjtArray.calculateSJTArray(n, k);
+
+        // Output
+        sjtArray.printArray();
+        sjtArray.clearSJTArray();
+    }
+}
