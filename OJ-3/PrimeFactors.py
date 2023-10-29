@@ -4,19 +4,29 @@ import math
 # array to store prime numbers
 primeArray = []
 
-def CalcBinCoeff(nPar, kPar):
+def RecCalcBinCoeff(nPar, kPar):
     table = np.zeros((nPar + 1,kPar + 1), np.int64)
-    return bCoeffPopulate(nPar, kPar, table)
+    return RecBCoeffPopulate(nPar, kPar, table)
 
-def bCoeffPopulate(nPar, kPar, tablePar):
+def RecBCoeffPopulate(nPar, kPar, tablePar):
     if ((nPar == kPar) or (kPar == 0)):
         return 1
     if (tablePar[nPar][kPar] > 0):
         return tablePar[nPar][kPar]
     
-    tablePar[nPar][kPar] = bCoeffPopulate(nPar -1, kPar -1, tablePar) + bCoeffPopulate(nPar - 1, kPar, tablePar)
+    tablePar[nPar][kPar] = RecBCoeffPopulate(nPar -1, kPar -1, tablePar) + RecBCoeffPopulate(nPar - 1, kPar, tablePar)
 
     return tablePar[nPar][kPar]
+
+def CalcBinCoeff(nPar, kPar):
+    result = 1
+    # through some math fenagiling we can get a
+    # solution of C(n,k) = [n*(n-1)*...*(n-k+1)] / [k*(k-1)*...*1]
+    # where there are k terms
+    for k in range(kPar):
+        result = result * (nPar - k)
+        result = result // (k + 1)
+    return result
 
 def SieveOfErr(limitPar):
     returnVal = 0
@@ -45,6 +55,24 @@ def SieveOfErr(limitPar):
     #        primeArray.append(prime)
     return returnVal
 
+def ModifiedSieveOfErr(NPar):
+    isPrime = [True for i in range(NPar + 1)]
+    SPF = [None for i in range(NPar + 1)]
+    isPrime[0] = isPrime[1] = False
+
+    for i in range(2, NPar):
+        if isPrime[i]:
+            primeArray.append(i)
+            SPF[i] = i
+        j = 0
+        while (j < len(primeArray) 
+               and i * primeArray[j] < NPar 
+               and primeArray[j] <= SPF[i]):
+            
+            isPrime[i * primeArray[j]] = False
+            SPF[i * primeArray[j]] = primeArray[j]
+            j+=1
+
 #def CalculateNumOfDistinctFactors(inputPar):
 #    returnNum = 0
 #    SieveOfErr(inputPar)
@@ -55,12 +83,17 @@ def SieveOfErr(limitPar):
 #    
 #    return returnNum
 
-
-
 n, k = input().split()
 n = int(n)
 k = int(k)
+nPF = 0
 
-print(SieveOfErr(CalcBinCoeff(n,k)))
+C = CalcBinCoeff(n,k)
+ModifiedSieveOfErr(C)
 
-
+i = 0
+while (i < len(primeArray)):
+    if ((C % primeArray[i]) == 0):
+        nPF+=1
+    i += 1
+print(nPF)
